@@ -1,8 +1,7 @@
-function App() {
+import Dashboard from "./pages/Dashboard";
 
-  return (
-    <h1 className="font-bold text-center">Hello</h1>
-  )
+function App() {
+  return <Dashboard />;
 }
 
-export default App
+export default App;

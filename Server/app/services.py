@@ -1,8 +1,8 @@
 import yfinance as yf
-from datetime import datetime, timedelta
+from datetime import timedelta
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from datetime import timedelta
+
 
 def fetch_stock_data(symbol: str):
     try:
@@ -17,11 +17,12 @@ def fetch_stock_data(symbol: str):
     for date, row in df.iterrows():
         data.append({
             "symbol": symbol,
-            "date": date.date(),
+            "date": date.date().isoformat(),  
             "close": float(row["Close"]),
             "volume": int(row["Volume"]),
         })
     return data
+
 
 def predict_next_day(stocks: list[dict]):
     if len(stocks) < 2:
@@ -37,24 +38,20 @@ def predict_next_day(stocks: list[dict]):
     next_day_index = np.array([[len(stocks_sorted)]])
     predicted_price = model.predict(next_day_index)[0]
 
-    next_date = stocks_sorted[-1]["date"] + timedelta(days=1)
+    return float(predicted_price)  
 
-    return {
-        "date": next_date.strftime("%Y-%m-%d"),
-        "predicted_close": float(predicted_price)
-    }
 
 def calculate_sma(closes, window=50):
     if len(closes) < window:
         return None
-    return sum(closes[-window:]) / window
+    return float(sum(closes[-window:]) / window)  
+
 
 def calculate_52week(stocks: list[dict]):
-    if len(stocks) < 250:  
+    if not stocks:
         return None
-
-    closes = [s["close"] for s in stocks[-250:]]
+    closes = [s["close"] for s in stocks]
     return {
-        "high": max(closes),
-        "low": min(closes)
+        "high": float(max(closes)),
+        "low": float(min(closes))
     }
