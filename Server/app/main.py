@@ -22,6 +22,7 @@ origins = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
     "https://fin-lytics-8a99ob4hw-sarthak-katiyars-projects.vercel.app",
+    "https://fin-lytics.vercel.app",
 ]
 
 app.add_middleware(
