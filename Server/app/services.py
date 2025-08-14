@@ -4,18 +4,24 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from datetime import timedelta
 
-def fetch_stock_data(symbol: str, period="6mo"):
-    ticker = yf.Ticker(symbol)
-    hist = ticker.history(period=period)
-    return [
-        {
+def fetch_stock_data(symbol: str):
+    try:
+        df = yf.download(symbol, period="1y")
+    except Exception as e:
+        raise RuntimeError(f"Error fetching data for {symbol}: {str(e)}")
+    
+    if df.empty:
+        raise ValueError(f"No stock data found for {symbol}")
+
+    data = []
+    for date, row in df.iterrows():
+        data.append({
             "symbol": symbol,
-            "date": idx.date(),
-            "close": row["Close"],
-            "volume": int(row["Volume"])
-        }
-        for idx, row in hist.iterrows()
-    ]
+            "date": date.date(),
+            "close": float(row["Close"]),
+            "volume": int(row["Volume"]),
+        })
+    return data
 
 def predict_next_day(stocks: list[dict]):
     if len(stocks) < 2:

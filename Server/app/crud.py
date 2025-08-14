@@ -1,11 +1,25 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models, services
 
-def save_stock_data(db: Session, stock_data: list[dict]):
-    for record in stock_data:
-        stock = models.Stock(**record)
+def get_stocks(db: Session, symbol: str):
+    return db.query(models.Stock).filter(models.Stock.symbol == symbol).all()
+
+def save_stock_data(db: Session, data: list):
+    for item in data:
+        stock = models.Stock(
+            symbol=item["symbol"],
+            date=item["date"],
+            close=item["close"],
+            volume=item["volume"]
+        )
         db.add(stock)
     db.commit()
 
-def get_stocks(db: Session, symbol: str, limit: int = 100):
-    return db.query(models.Stock).filter(models.Stock.symbol == symbol).order_by(models.Stock.date.desc()).limit(limit).all()
+def get_or_fetch_stocks(db: Session, symbol: str):
+    stocks = get_stocks(db, symbol)
+    if stocks:
+        return stocks
+
+    data = services.fetch_stock_data(symbol)
+    save_stock_data(db, data)
+    return get_stocks(db, symbol)
